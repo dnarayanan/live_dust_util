@@ -90,7 +90,7 @@ class GrainSizeDistribution(object):
 			print("species keyword in",list(GrainSizeDistribution.species_keys_ext))
 			return np.array([])
 
-	def compute_small_to_large_ratio(self):
+	def compute_small_to_large_ratio(self,size=6e-2):
 		"""
 		compute small-to-large-grain mass ratio for different grain species
 
@@ -99,14 +99,17 @@ class GrainSizeDistribution(object):
 		i = 0
 		stl = np.zeros(len(GrainSizeDistribution.species_keys_ext))
 		for key in GrainSizeDistribution.species_keys_ext:
-			filt_small = np.where(self.a <= 6e-2) # Aoyama+2020
-			filt_large = np.where(self.a > 6e-2)
+			filt_small = np.where(self.a <= size) # Aoyama+2020
+			filt_large = np.where(self.a > size)
 			m_small = np.sum(self.DMSF[key][filt_small])
 			m_large = np.sum(self.DMSF[key][filt_large])
 			stl[i] = m_small / m_large
 			i += 1
 		return dict(zip(GrainSizeDistribution.species_keys_ext, stl))
 
+        
+        
+        
 	def compute_abundances(self):
 		"""
 		compute abundances of different grain species
