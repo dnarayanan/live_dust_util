@@ -2,6 +2,7 @@ import copy
 import numpy as np
 from .SnapshotContainer import SnapshotContainer
 from .utils import IndexUtil
+import pdb
 
 class GrainSizeDistribution(object):
     '''
@@ -49,7 +50,7 @@ class GrainSizeDistribution(object):
 
         filt = snap.compute_filter(p_c,r_s,r_e,lz)['PartType3']
         if (snap.dataset["PartType3/Dust_NumGrains"].shape[1]) >= 3 * nbins:
-            f_pah = snap.dataset["PartType3/Dust_NumGrains"][filt][:,-nbins:]
+            f_PAH = snap.dataset["PartType3/Dust_NumGrains"][filt][:,-nbins:]
             self.DNSF["Aliphatic C"] = np.sum((1.0 - f_PAH) * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
             self.DNSF["PAH"] = np.sum(f_PAH * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
             self.DNSF["Carbonaceous"] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
@@ -103,8 +104,10 @@ class GrainSizeDistribution(object):
             filt_large = np.where(self.a > size)
             m_small = np.sum(self.DMSF[key][filt_small])
             m_large =  np.sum(self.DMSF[key][filt_large])
-            stl[i] = msmall/mslarge
+            stl[i] = m_small/m_large
             i += 1
+
+
         return dict(zip(GrainSizeDistribution.species_keys_ext, stl))
 
 
