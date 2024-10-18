@@ -22,7 +22,7 @@ class GrainSizeDistribution(object):
     species_keys = species_rho.keys()
     species_keys_ext = species_rho_ext.keys()
 
-    def __init__(self,snap,a=10.**np.linspace(-3,0,16), p_c = [], r_s = None, r_e = None, lz = np.array([0.,0.,1.])):
+    def __init__(self,snap,a=10.**np.linspace(-3.,0,16), p_c = [], r_s = None, r_e = None, lz = np.array([0.,0.,1.])):
         self.set_grain_size_distribution(snap,a,p_c,r_s,r_e,lz)
 
     def set_grain_size_distribution(self,snap,a,p_c,r_s,r_e,lz):
@@ -63,6 +63,7 @@ class GrainSizeDistribution(object):
             self.DNSF["Carbonaceous"] = self.DNSF["Aliphatic C"] # no need to deep copy since they are actually the same
         for key in GrainSizeDistribution.species_keys_ext:
             self.DMSF[key] =  self._from_n_to_m(self.DNSF[key],key)
+
 
 
     def get_grain_size_distribution(self, spe, qtype = "mass"):
@@ -106,13 +107,32 @@ class GrainSizeDistribution(object):
             m_large =  np.sum(self.DMSF[key][filt_large])
             stl[i] = m_small/m_large
             i += 1
-
+            
 
         return dict(zip(GrainSizeDistribution.species_keys_ext, stl))
 
 
+    def compute_q_pah(self,size=1.5e-3):
+        '''
+        Compute q_PAH explicitly (which is really just doing a
+        small_to_large_ratio calculation with the PAH species only,
+        and ensuring that 'Large' is actually all grains and not just
+        large ones)
+        '''
+        filt_small = np.where(self.a <= size) # Aoyama+2020
+        filt_large = np.where(self.a > 0)
+        m_small = np.sum(self.DMSF['PAH'][filt_small])
+        m_large =  np.sum(self.DMSF['PAH'][filt_large])
+        qpah = m_small/m_large
+        return qpah,m_small,m_large
+
+
+        
+
+        
 
     def compute_abundances(self):
+
         '''
         compute abundances of different grain species
         return <dict> abundances
