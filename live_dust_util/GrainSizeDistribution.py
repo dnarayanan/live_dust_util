@@ -22,7 +22,7 @@ class GrainSizeDistribution(object):
     species_keys = species_rho.keys()
     species_keys_ext = species_rho_ext.keys()
 
-    def __init__(self,snap,a=10.**np.linspace(-3.,0,16), p_c = [], r_s = None, r_e = None, lz = np.array([0.,0.,1.])):
+    def __init__(self,snap,a=10.**np.linspace(-3.4,0,16), p_c = [], r_s = None, r_e = None, lz = np.array([0.,0.,1.])):
         self.set_grain_size_distribution(snap,a,p_c,r_s,r_e,lz)
 
     def set_grain_size_distribution(self,snap,a,p_c,r_s,r_e,lz):
@@ -121,8 +121,27 @@ class GrainSizeDistribution(object):
         '''
         filt_small = np.where(self.a <= size) # Aoyama+2020
         filt_large = np.where(self.a > 0)
+
         m_small = np.sum(self.DMSF['PAH'][filt_small])
-        m_large =  np.sum(self.DMSF['PAH'][filt_large])
+
+        for counter,key in enumerate(GrainSizeDistribution.species_keys_ext):
+            if counter == 0:
+                m_large =  np.sum(self.DMSF[key][filt_large])
+            else:
+                m_large += np.sum(self.DMSF[key][filt_large])
+        '''
+        if len(filt_small) > 1:
+            m_small = np.trapz(self.DMSF['PAH'][filt_small]/self.a[filt_small],self.a[filt_small])
+        else:
+            m_small = np.sum(self.DMSF['PAH'][filt_small])
+
+            
+        for counter,key in enumerate(GrainSizeDistribution.species_keys_ext):
+            if counter == 0:
+                m_large = np.trapz(self.DMSF[key][filt_large]/self.a[filt_large],self.a[filt_large])
+            else:
+                m_large += np.trapz(self.DMSF[key][filt_large]/self.a[filt_large],self.a[filt_large])
+        '''
         qpah = m_small/m_large
         return qpah,m_small,m_large
 
