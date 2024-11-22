@@ -64,7 +64,7 @@ class GrainSizeDistribution(object):
         for key in GrainSizeDistribution.species_keys_ext:
             self.DMSF[key] =  self._from_n_to_m(self.DNSF[key],key)
 
-
+        pdb.set_trace()
 
     def get_grain_size_distribution(self, spe, qtype = "mass"):
         '''
@@ -92,17 +92,23 @@ class GrainSizeDistribution(object):
 
 
 
-    def compute_small_to_large_ratio(self,size=6e-2):
+    def compute_small_to_large_ratio(self,size=6e-2,large_is_all_grains = False):
         '''
         Compute small-to-large-grain mass ratio for different grain species
         return: <dict> small-to-large mass ratio
-        '''
+        
+        #if large_is_all_grains is set to True, then we compute the large as the mass of all grains
 
+        '''
         i = 0
         stl = np.zeros(len(GrainSizeDistribution.species_keys_ext))
         for key in GrainSizeDistribution.species_keys_ext:
             filt_small = np.where(self.a <= size) # Aoyama+2020
-            filt_large = np.where(self.a > size)
+
+            if large_is_all_grains == False:
+                filt_large = np.where(self.a > size)
+            else:
+                filt_large = np.where(self.a > 0)
             m_small = np.sum(self.DMSF[key][filt_small])
             m_large =  np.sum(self.DMSF[key][filt_large])
             stl[i] = m_small/m_large
@@ -119,10 +125,13 @@ class GrainSizeDistribution(object):
         and ensuring that 'Large' is actually all grains and not just
         large ones)
         '''
+
+
         filt_small = np.where(self.a <= size) # Aoyama+2020
         filt_large = np.where(self.a > 0)
 
         m_small = np.sum(self.DMSF['PAH'][filt_small])
+
 
         for counter,key in enumerate(GrainSizeDistribution.species_keys_ext):
             if counter == 0:
@@ -142,12 +151,12 @@ class GrainSizeDistribution(object):
             else:
                 m_large += np.trapz(self.DMSF[key][filt_large]/self.a[filt_large],self.a[filt_large])
         '''
+
         qpah = m_small/m_large
         return qpah,m_small,m_large
 
 
         
-
         
 
     def compute_abundances(self):
