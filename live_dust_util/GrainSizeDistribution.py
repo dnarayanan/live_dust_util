@@ -50,11 +50,20 @@ class GrainSizeDistribution(object):
 
         filt = snap.compute_filter(p_c,r_s,r_e,lz)['PartType3']
         if (snap.dataset["PartType3/Dust_NumGrains"].shape[1]) >= 3 * nbins:
-            f_PAH = snap.dataset["PartType3/Dust_NumGrains"][filt][:,-nbins:]
-            self.DNSF["Aliphatic C"] = np.sum((1.0 - f_PAH) * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
-            self.DNSF["PAH"] = np.sum(f_PAH * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
-            self.DNSF["Carbonaceous"] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
-            self.DNSF["Silicate"] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:, : nbins], axis=0)
+
+            self.DNSF['Carbonaceous'] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
+            self.DNSF['Silicate'] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:, 0:nbins], axis=0)
+            self.DNSF['Aromatic Fraction'] = snap.dataset["PartType3/Dust_NumGrains"][filt][:,2 * nbins::]
+            self.DNSF['PAH'] = np.sum(self.DNSF['Aromatic Fraction']*snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins],axis=0)
+            self.DNSF['Aliphatic C'] = self.DNSF['Carbonaceous']-self.DNSF['PAH']
+
+            if self.DNSF['Aliphatic C'][0] < 0: pdb.set_trace()
+            
+            #f_PAH = snap.dataset["PartType3/Dust_NumGrains"][filt][:,-nbins:]
+            #self.DNSF["Aliphatic C"] = np.sum((1.0 - f_PAH) * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
+            #self.DNSF["PAH"] = np.sum(f_PAH * snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
+            #self.DNSF["Carbonaceous"] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:,nbins: 2 * nbins], axis=0)
+            #self.DNSF["Silicate"] = np.sum(snap.dataset["PartType3/Dust_NumGrains"][filt][:, : nbins], axis=0)
         else:
             f_C = snap.dataset["PartType3/Dust_MetalFractions"][filt][: ,IndexUtil.elem_i_C]
             self.DNSF["Aliphatic C"] = np.sum(np.dot(f_C, snap.dataset["PartType3/Dust_NumGrains"][filt][:, :]), axis=0)
@@ -64,7 +73,6 @@ class GrainSizeDistribution(object):
         for key in GrainSizeDistribution.species_keys_ext:
             self.DMSF[key] =  self._from_n_to_m(self.DNSF[key],key)
 
-        pdb.set_trace()
 
     def get_grain_size_distribution(self, spe, qtype = "mass"):
         '''
