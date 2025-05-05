@@ -94,3 +94,39 @@ def smc(wave, tau_v=1, **kwargs):
         abs_ab += aa[i] / ((mic / ll[i])**nn[i] + (ll[i] / mic)**nn[i] + bb[i])
 
     return tau_v * (abs_ab / norm_v)
+
+
+
+def lmc(wave, tau_v=1, **kwargs):
+    """ Pei 1992 LMC extinction curve.
+
+    :param wave:
+        The wavelengths at which optical depth estimates are desired.
+
+    :param tau_v: (default: 1)
+        The optical depth at 5500\AA, used to normalize the
+        attenuation curve.
+
+    :returns tau:
+        The optical depth at each wavelength.
+    """
+    if (wave < 1e3).any():
+        warnings.warn('LMC: extinction extrapolation below 1000AA is poor')
+    mic = wave
+    aa = [175.,  19.,  0.023, 0.005, 0.006, 0.020]
+    ll = [0.046, 0.08, 0.22,  9.7,   18.,   25.]
+    bb = [90.,   5.50, -1.95, -1.95, -1.80, 0.00]
+    nn = [2.0,   4.5,  2.0,   2.0,   2.0,   2.0]
+
+    abs_ab = np.zeros_like(mic)
+    #mic * 0.
+    norm_v = 0  # hack to go from tau_b to tau_v
+    mic_5500 = 5500 * 1e-4
+
+    for i, a in enumerate(aa):
+        norm_v += aa[i] / ((mic_5500 / ll[i])**nn[i] +
+                           (ll[i] / mic_5500)**nn[i] + bb[i])
+        abs_ab += aa[i] / ((mic / ll[i])**nn[i] + (ll[i] / mic)**nn[i] + bb[i])
+
+    return tau_v * (abs_ab / norm_v)
+
