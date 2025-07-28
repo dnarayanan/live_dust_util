@@ -24,7 +24,7 @@ class ExtinctionLaw(object):
 		# And I seriously do not want users to modify gsd of an instance.
 		# The current strategy may look ugly but I will make it better as I learn more.
 		self.__gsd = gsd
-		if (ExtinctionLaw._x0 == []) or (ExtinctionLaw._op == []):
+		if (len(ExtinctionLaw._x0) == 0) or (len(ExtinctionLaw._op) == 0):
 			ExtinctionLaw.set_optical_properties(wave, op_a, op_gra, op_sil)
 		self.reset_wavelength(wave)
 
