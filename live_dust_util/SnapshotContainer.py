@@ -59,7 +59,7 @@ class SnapshotContainer(object):
 		return: 
 			dict('PartType{i}': filter_PartType{i})
 		"""
-		if (p_c == []) or (r_s == None) or (r_e == None):
+		if (len(p_c) == 0) or (r_s == None) or (r_e == None):
 			# essentially no filter applied
 			for part_type in SnapshotContainer._part_types:
 				self.filt[part_type] = np.where(self.dataset[part_type + '/Masses'] > 0)
