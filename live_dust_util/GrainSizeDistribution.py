@@ -136,9 +136,11 @@ class GrainSizeDistribution(object):
 
 
         filt_small = np.where(self.a <= size) # Aoyama+2020
-        filt_large = np.where(self.a > 0)
-
-        m_small = np.sum(self.DMSF['PAH'][filt_small])
+        #filt_large = np.where(self.a > 0)
+        filt_large = np.where(self.a>size)
+        
+        '''
+        m_small = np.sum(self.DMSF['Carbonaceous'][filt_small])
 
 
         for counter,key in enumerate(GrainSizeDistribution.species_keys_ext):
@@ -146,11 +148,14 @@ class GrainSizeDistribution(object):
                 m_large =  np.sum(self.DMSF[key][filt_large])
             else:
                 m_large += np.sum(self.DMSF[key][filt_large])
+
         '''
+
+
         if len(filt_small) > 1:
-            m_small = np.trapz(self.DMSF['PAH'][filt_small]/self.a[filt_small],self.a[filt_small])
+            m_small = np.trapz( (self.DMSF['PAH'][filt_small] + self.DMSF['Aliphatic C'][filt_small])/self.a[filt_small],self.a[filt_small])
         else:
-            m_small = np.sum(self.DMSF['PAH'][filt_small])
+            m_small = np.sum(self.DMSF['PAH'][filt_small])+np.sum(self.DMSF['Aliphatic C'][filt_small])
 
             
         for counter,key in enumerate(GrainSizeDistribution.species_keys_ext):
@@ -158,7 +163,7 @@ class GrainSizeDistribution(object):
                 m_large = np.trapz(self.DMSF[key][filt_large]/self.a[filt_large],self.a[filt_large])
             else:
                 m_large += np.trapz(self.DMSF[key][filt_large]/self.a[filt_large],self.a[filt_large])
-        '''
+
 
         qpah = m_small/m_large
         return qpah,m_small,m_large
